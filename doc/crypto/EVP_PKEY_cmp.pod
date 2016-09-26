@@ -28,7 +28,7 @@ in B<from> and B<to> are both present and match this function has no effect.
 The function EVP_PKEY_cmp_parameters() compares the parameters of keys
 B<a> and B<b>.
 
-The function EVP_PKEY_cmp() compares the public key components and paramters
+The function EVP_PKEY_cmp() compares the public key components and parameters
 (if present) of keys B<a> and B<b>.
 
 =head1 NOTES
