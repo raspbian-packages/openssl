@@ -492,6 +492,8 @@
 #define CERT_PRIVATE_KEY        2
 */
 
+# define MAX_WARN_ALERT_COUNT    5
+
 # ifndef OPENSSL_NO_EC
 /*
  * From ECC-TLS draft, used in encoding the curve type in ECParameters
@@ -540,6 +542,8 @@ typedef struct cert_st {
 # endif
     CERT_PKEY pkeys[SSL_PKEY_NUM];
     int references;             /* >1 only if SSL_copy_session_id is used */
+    /* Count of the number of consecutive warning alerts received */
+    unsigned int alert_count;
 } CERT;
 
 typedef struct sess_cert_st {
