@@ -1,0 +1,7 @@
+debian-targets.patch
+man-section.patch
+no-symbolic.patch
+pic.patch
+c_rehash-compat.patch
+#padlock_conf.patch
+0001-Only-release-thread-local-key-if-we-created-it.patch
