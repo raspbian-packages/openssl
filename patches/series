@@ -1,0 +1,8 @@
+debian-targets.patch
+man-section.patch
+no-symbolic.patch
+pic.patch
+c_rehash-compat.patch
+Configure-allow-to-enable-afalgeng-if-target-does-not-sta.patch
+Fix-typo-in-OPENSSL_LH_new-compat-API.patch
+Revert-util-dofile.pl-only-quote-stuff-that-actually-need.patch
