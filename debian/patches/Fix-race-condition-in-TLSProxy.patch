@@ -1,0 +1,42 @@
+From 77543471c709089d3845f6bdcf13fa4557ec57dc Mon Sep 17 00:00:00 2001
+From: Matt Caswell <matt@openssl.org>
+Date: Fri, 3 Nov 2017 10:43:06 +0000
+Subject: [PATCH] Fix race condition in TLSProxy
+
+Normally TLSProxy waits for the s_server process to finish before
+continuing. However in cases where serverconnects > 1 we need to keep the
+s_server process around for a later test so we continue immediately. This
+means that TAP test output can end up being printed to stdout at the same
+time as s_server is printing stuff. This confuses the test runner and can
+cause spurious test failures. This commit introduces a small delay in cases
+where serverconnects > 1 in order to give s_server enough time to finish
+what it was doing before we continue to the next test.
+
+Fixes #4129
+
+Reviewed-by: Richard Levitte <levitte@openssl.org>
+(Merged from https://github.com/openssl/openssl/pull/4661)
+---
+ util/TLSProxy/Proxy.pm |    4 ++++
+ 1 file changed, 4 insertions(+)
+
+--- a/util/TLSProxy/Proxy.pm
++++ b/util/TLSProxy/Proxy.pm
+@@ -19,6 +19,7 @@ use TLSProxy::ClientHello;
+ use TLSProxy::ServerHello;
+ use TLSProxy::ServerKeyExchange;
+ use TLSProxy::NewSessionTicket;
++use Time::HiRes qw/usleep/;
+ 
+ my $have_IPv6 = 0;
+ my $IP_factory;
+@@ -317,6 +318,9 @@ sub clientstart
+               .$self->serverpid."\n";
+         waitpid( $self->serverpid, 0);
+         die "exit code $? from server process\n" if $? != 0;
++    } else {
++        # Give s_server sufficient time to finish what it was doing
++        usleep(250000);
+     }
+     die "clientpid is zero\n" if $self->clientpid == 0;
+     print "Waiting for client process to close: ".$self->clientpid."\n";
