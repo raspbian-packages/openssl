@@ -1,0 +1,14 @@
+debian-targets.patch
+man-section.patch
+no-symbolic.patch
+pic.patch
+c_rehash-compat.patch
+#padlock_conf.patch
+0001-Only-release-thread-local-key-if-we-created-it.patch
+CVE-2017-3735.patch
+CVE-2017-3736.patch
+Fix-a-Proxy-race-condition.patch
+Fix-race-condition-in-TLSProxy.patch
+bn-asm-rsaz-avx2.pl-fix-digit-correction-bug-in-rsaz.patch
+Limit-ASN.1-constructed-types-recursive-definition-d.patch
+pariscid.pl-fix-nasty-typo-in-CRYPTO_memcmp.patch
