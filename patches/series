@@ -1,0 +1,7 @@
+debian-targets.patch
+man-section.patch
+no-symbolic.patch
+pic.patch
+c_rehash-compat.patch
+Set-systemwide-default-settings-for-libssl-users.patch
+Define-AESNI_ASM-if-AESNI-assembler-is-included-and-use-i.patch
