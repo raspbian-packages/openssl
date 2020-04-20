@@ -1,0 +1,9 @@
+debian-targets.patch
+man-section.patch
+no-symbolic.patch
+pic.patch
+c_rehash-compat.patch
+Set-systemwide-default-settings-for-libssl-users.patch
+Define-AESNI_ASM-if-AESNI-assembler-is-included-and-use-i.patch
+Add-test-for-CVE-2020-1967.patch
+Fix-NULL-dereference-in-SSL_check_chain-for-TLS-1.3.patch
