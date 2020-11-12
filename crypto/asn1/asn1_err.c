@@ -130,6 +130,7 @@ static ERR_STRING_DATA ASN1_str_reasons[] = {
     {ERR_REASON(ASN1_R_ASN1_SIG_PARSE_ERROR), "asn1 sig parse error"},
     {ERR_REASON(ASN1_R_AUX_ERROR), "aux error"},
     {ERR_REASON(ASN1_R_BAD_OBJECT_HEADER), "bad object header"},
+    {ERR_REASON(ASN1_R_BAD_TEMPLATE), "bad template"},
     {ERR_REASON(ASN1_R_BMPSTRING_IS_WRONG_LENGTH),
      "bmpstring is wrong length"},
     {ERR_REASON(ASN1_R_BN_LIB), "bn lib"},
