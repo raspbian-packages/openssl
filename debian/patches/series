@@ -1,0 +1,10 @@
+debian-targets.patch
+man-section.patch
+no-symbolic.patch
+pic.patch
+c_rehash-compat.patch
+DirectoryString-is-a-CHOICE-type-and-therefore-uses-expli.patch
+Correctly-compare-EdiPartyName-in-GENERAL_NAME_cmp.patch
+Check-that-multi-strings-CHOICE-types-don-t-use-implicit-.patch
+Complain-if-we-are-attempting-to-encode-with-an-invalid-A.patch
+Add-a-test-for-GENERAL_NAME_cmp.patch
