@@ -303,7 +303,16 @@ int ASN1_STRING_set(ASN1_STRING *str, const void *_data, int len_in)
     if (data != NULL) {
         memcpy(str->data, data, len);
         /* an allowance for strings :-) */
+#ifdef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
+        /*
+         * Arbitrary byte on the end, which should never be read if the string
+         * length is being properly respected.
+         */
+        str->data[len] = 'x';
+#else
+        /* This should not be necessary - but we add it as a safety precaution */
         str->data[len] = '\0';
+#endif
     }
     return 1;
 }
