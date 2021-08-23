@@ -43,9 +43,12 @@ static int x509v3_add_len_value(const char *name, const char *value,
 
     if (name != NULL && (tname = OPENSSL_strdup(name)) == NULL)
         goto err;
-    if (value != NULL) {
-        /* We don't allow embeded NUL characters */
-        if (memchr(value, 0, vallen) != NULL)
+    if (value != NULL && vallen > 0) {
+        /*
+         * We tolerate a single trailing NUL character, but otherwise no
+         * embedded NULs
+         */
+        if (memchr(value, 0, vallen - 1) != NULL)
             goto err;
         tvalue = OPENSSL_strndup(value, vallen);
         if (tvalue == NULL)
