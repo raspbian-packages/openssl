@@ -1,0 +1,77 @@
+From: "H.J. Lu" <hongjiu.lu@intel.com>
+Date: Fri, 13 Dec 2019 16:46:07 -0800
+Subject: Use swapcontext for Intel CET
+
+When Intel CET is enabled, makecontext will create a different shadow
+stack for each context.  async_fibre_swapcontext cannot use _longjmp.
+It must call swapcontext to swap shadow stack as well as normal stack.
+
+Reviewed-by: Paul Dale <paul.dale@oracle.com>
+Reviewed-by: Matt Caswell <matt@openssl.org>
+(Merged from https://github.com/openssl/openssl/pull/10983)
+---
+ crypto/async/arch/async_posix.c |  2 ++
+ crypto/async/arch/async_posix.h | 19 ++++++++++++++++++-
+ 2 files changed, 20 insertions(+), 1 deletion(-)
+
+diff --git a/crypto/async/arch/async_posix.c b/crypto/async/arch/async_posix.c
+index 95678d4fa686..dfc45bfa0540 100644
+--- a/crypto/async/arch/async_posix.c
++++ b/crypto/async/arch/async_posix.c
+@@ -34,7 +34,9 @@ void async_local_cleanup(void)
+ 
+ int async_fibre_makecontext(async_fibre *fibre)
+ {
++#ifndef USE_SWAPCONTEXT
+     fibre->env_init = 0;
++#endif
+     if (getcontext(&fibre->fibre) == 0) {
+         fibre->fibre.uc_stack.ss_sp = OPENSSL_malloc(STACKSIZE);
+         if (fibre->fibre.uc_stack.ss_sp != NULL) {
+diff --git a/crypto/async/arch/async_posix.h b/crypto/async/arch/async_posix.h
+index 873c0316ddf3..db42a018806f 100644
+--- a/crypto/async/arch/async_posix.h
++++ b/crypto/async/arch/async_posix.h
+@@ -25,17 +25,33 @@
+ #  define ASYNC_POSIX
+ #  define ASYNC_ARCH
+ 
++#  ifdef __CET__
++/*
++ * When Intel CET is enabled, makecontext will create a different
++ * shadow stack for each context.  async_fibre_swapcontext cannot
++ * use _longjmp.  It must call swapcontext to swap shadow stack as
++ * well as normal stack.
++ */
++#   define USE_SWAPCONTEXT
++#  endif
+ #  include <ucontext.h>
+-#  include <setjmp.h>
++#  ifndef USE_SWAPCONTEXT
++#   include <setjmp.h>
++#  endif
+ 
+ typedef struct async_fibre_st {
+     ucontext_t fibre;
++#  ifndef USE_SWAPCONTEXT
+     jmp_buf env;
+     int env_init;
++#  endif
+ } async_fibre;
+ 
+ static ossl_inline int async_fibre_swapcontext(async_fibre *o, async_fibre *n, int r)
+ {
++#  ifdef USE_SWAPCONTEXT
++    swapcontext(&o->fibre, &n->fibre);
++#  else
+     o->env_init = 1;
+ 
+     if (!r || !_setjmp(o->env)) {
+@@ -44,6 +60,7 @@ static ossl_inline int async_fibre_swapcontext(async_fibre *o, async_fibre *n, i
+         else
+             setcontext(&n->fibre);
+     }
++#  endif
+ 
+     return 1;
+ }
