@@ -51,11 +51,11 @@ tsa_policy3 = 1.2.3.4.5.7
 # .include fipsmodule.cnf
 
 [openssl_init]
-providers = provider_sect
+# providers = provider_sect
 
 # List of providers to load
-[provider_sect]
-default = default_sect
+# [provider_sect]
+# default = default_sect
 # The fips section name should match the section name inside the
 # included fipsmodule.cnf.
 # fips = fips_sect
@@ -68,7 +68,7 @@ default = default_sect
 # becomes unavailable in openssl.  As a consequence applications depending on
 # OpenSSL may not work correctly which could lead to significant system
 # problems including inability to remotely access the system.
-[default_sect]
+# [default_sect]
 # activate = 1
 
 
