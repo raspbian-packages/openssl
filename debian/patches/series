@@ -1,0 +1,11 @@
+debian-targets.patch
+man-section.patch
+no-symbolic.patch
+pic.patch
+c_rehash-compat.patch
+Configure-allow-to-enable-ktls-if-target-does-not-start-w.patch
+Remove-the-provider-section.patch
+test-ssl-tests-Add-a-security-level-to-14-curves.cnf-test.patch
+test-Extend-default.cnf-with-a-CipherString.patch
+Update-to-ce3951fc30c7b-VC-2008-or-earlier-x86-compilers-.patch
+conf-Serialize-allocation-free-of-ssl_names.patch
