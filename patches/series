@@ -1,0 +1,12 @@
+debian-targets.patch
+man-section.patch
+no-symbolic.patch
+pic.patch
+c_rehash-compat.patch
+Configure-allow-to-enable-ktls-if-target-does-not-start-w.patch
+Remove-the-provider-section.patch
+conf-Serialize-allocation-free-of-ssl_names.patch
+Fix-tests-for-new-default-security-level.patch
+x509-fix-double-locking-problem.patch
+Release-the-drbg-in-the-global-default-context-before-eng.patch
+apps-dgst.c-Set-digestname-from-argv-0-if-it-is-a-builtin.patch
