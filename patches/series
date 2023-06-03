@@ -1,0 +1,34 @@
+debian-targets.patch
+man-section.patch
+no-symbolic.patch
+pic.patch
+c_rehash-compat.patch
+Set-systemwide-default-settings-for-libssl-users.patch
+c_rehash-Do-not-use-shell-to-invoke-openssl.patch
+Fix-file-operations-in-c_rehash.patch
+Update-expired-SCT-certificates.patch
+ct_test.c-Update-the-epoch-time.patch
+Update-further-expiring-certificates-that-affect-tests.patch
+Avoid-dangling-ptrs-in-header-and-data-params-for-PEM_rea.patch
+Add-a-test-for-CVE-2022-4450.patch
+CVE-2023-0286-Fix-GENERAL_NAME_cmp-for-x400Address-1.1.1.patch
+Fix-a-UAF-resulting-from-a-bug-in-BIO_new_NDEF.patch
+Check-CMS-failure-during-BIO-setup-with-stream-is-handled.patch
+Fix-Timing-Oracle-in-RSA-decryption.patch
+Fix-AES-OCB-encrypt-decrypt-for-x86-AES-NI.patch
+AES-OCB-test-vectors.patch
+
+# CVE-2023-0464
+x509-excessive-resource-use-verifying-policy-constraints.patch
+# CVE-2023-0465
+Ensure-that-EXFLAG_INVALID_POLICY-is-checked-even-in-leaf.patch
+Generate-some-certificates-with-the-certificatePolicies-e.patch
+Add-a-Certificate-Policies-Test.patch
+# CVE-2023-0466
+Fix-documentation-of-X509_VERIFY_PARAM_add0_policy.patch
+# CVE-2022-4304 alternative fix
+Revert-Fix-Timing-Oracle-in-RSA-decryption.patch
+Alternative-fix-for-CVE-2022-4304.patch
+Re-add-BN_F_OSSL_BN_RSA_DO_UNBLIND-which-was-incorrectly-.patch
+# CVE-2023-2650
+Restrict-the-size-of-OBJECT-IDENTIFIERs-that-OBJ_obj2txt-.patch

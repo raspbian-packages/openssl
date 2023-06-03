@@ -1,0 +1,24 @@
+From: Tomas Mraz <tomas@openssl.org>
+Date: Thu, 20 Apr 2023 10:24:38 +0200
+Subject: Re-add BN_F_OSSL_BN_RSA_DO_UNBLIND which was incorrectly removed
+
+Reviewed-by: Dmitry Belyavskiy <beldmit@gmail.com>
+Reviewed-by: Matt Caswell <matt@openssl.org>
+Reviewed-by: Paul Dale <pauli@openssl.org>
+(Merged from https://github.com/openssl/openssl/pull/20784)
+---
+ include/openssl/bnerr.h | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/include/openssl/bnerr.h b/include/openssl/bnerr.h
+index 9f3c7cfaab67..a0752cea52d7 100644
+--- a/include/openssl/bnerr.h
++++ b/include/openssl/bnerr.h
+@@ -72,6 +72,7 @@ int ERR_load_BN_strings(void);
+ # define BN_F_BN_SET_WORDS                                144
+ # define BN_F_BN_STACK_PUSH                               148
+ # define BN_F_BN_USUB                                     115
++# define BN_F_OSSL_BN_RSA_DO_UNBLIND                      151
+ 
+ /*
+  * BN reason codes.
