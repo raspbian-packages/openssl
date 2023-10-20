@@ -34,6 +34,7 @@ int ERR_load_DH_strings(void);
 #  define DH_F_DH_CHECK_EX                                 121
 #  define DH_F_DH_CHECK_PARAMS_EX                          122
 #  define DH_F_DH_CHECK_PUB_KEY_EX                         123
+#  define DH_F_DH_CHECK_PUB_KEY                            124
 #  define DH_F_DH_CMS_DECRYPT                              114
 #  define DH_F_DH_CMS_SET_PEERKEY                          115
 #  define DH_F_DH_CMS_SET_SHARED_INFO                      116
@@ -82,6 +83,7 @@ int ERR_load_DH_strings(void);
 #  define DH_R_NO_PRIVATE_VALUE                            100
 #  define DH_R_PARAMETER_ENCODING_ERROR                    105
 #  define DH_R_PEER_KEY_ERROR                              111
+#  define DH_R_Q_TOO_LARGE                                 130
 #  define DH_R_SHARED_INFO_ERROR                           113
 #  define DH_R_UNABLE_TO_CHECK_GENERATOR                   121
 
