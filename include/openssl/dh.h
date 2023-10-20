@@ -33,6 +33,10 @@ extern "C" {
 #  define OPENSSL_DH_CHECK_MAX_MODULUS_BITS  32768
 # endif
 
+# ifndef OPENSSL_DH_CHECK_MAX_MODULUS_BITS
+#  define OPENSSL_DH_CHECK_MAX_MODULUS_BITS  32768
+# endif
+
 # define OPENSSL_DH_FIPS_MIN_MODULUS_BITS 1024
 
 # define DH_FLAG_CACHE_MONT_P     0x01
@@ -79,6 +83,7 @@ DECLARE_ASN1_ITEM(DHparams)
 # define DH_CHECK_Q_NOT_PRIME            0x10
 # define DH_CHECK_INVALID_Q_VALUE        0x20
 # define DH_CHECK_INVALID_J_VALUE        0x40
+# define DH_MODULUS_TOO_LARGE            0x100
 
 /* DH_check_pub_key error codes */
 # define DH_CHECK_PUBKEY_TOO_SMALL       0x01
