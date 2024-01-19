@@ -39,6 +39,7 @@ int ERR_load_PKCS12_strings(void);
 # define PKCS12_F_PKCS12_NEWPASS                          128
 # define PKCS12_F_PKCS12_PACK_P7DATA                      114
 # define PKCS12_F_PKCS12_PACK_P7ENCDATA                   115
+# define PKCS12_F_PKCS12_UNPACK_P7ENCDATA                 116
 # define PKCS12_F_PKCS12_PARSE                            118
 # define PKCS12_F_PKCS12_PBE_CRYPT                        119
 # define PKCS12_F_PKCS12_PBE_KEYIVGEN                     120
