@@ -6896,22 +6896,45 @@ static int test_key_update_local_in_read(int tst)
 }
 #endif /* OSSL_NO_USABLE_TLS1_3 */
 
+/*
+ * Test clearing a connection via SSL_clear(), or resetting it via
+ * SSL_set_connect_state()/SSL_set_accept_state()
+ * Test 0: SSL_set_connect_state, TLSv1.3
+ * Test 1: SSL_set_connect_state, TLSv1.2
+ * Test 2: SSL_set_accept_state, TLSv1.3
+ * Test 3: SSL_set_accept_state, TLSv1.2
+ * Test 4: SSL_clear (client), TLSv1.3
+ * Test 5: SSL_clear (client), TLSv1.2
+ * Test 6: SSL_clear (server), TLSv1.3
+ * Test 7: SSL_clear (server), TLSv1.2
+ */
 static int test_ssl_clear(int idx)
 {
     SSL_CTX *cctx = NULL, *sctx = NULL;
     SSL *clientssl = NULL, *serverssl = NULL;
+    SSL *writer, *reader;
     int testresult = 0;
+    int tls12test, servertest, cleartest;
+    size_t written, readbytes;
+    const char *msg = "Hello World";
+    unsigned char buf[5];
+
+    tls12test = idx & 1;
+    idx >>= 1;
+    servertest = idx & 1;
+    idx >>= 1;
+    cleartest = idx & 1;
 
 #ifdef OPENSSL_NO_TLS1_2
-    if (idx == 1)
-        return 1;
+    if (tls12test == 1)
+        return TEST_skip("No TLSv1.2 in this build");
 #endif
 
     /* Create an initial connection */
     if (!TEST_true(create_ssl_ctx_pair(libctx, TLS_server_method(),
                                        TLS_client_method(), TLS1_VERSION, 0,
                                        &sctx, &cctx, cert, privkey))
-            || (idx == 1
+            || (tls12test
                 && !TEST_true(SSL_CTX_set_max_proto_version(cctx,
                                                             TLS1_2_VERSION)))
             || !TEST_true(create_ssl_objects(sctx, cctx, &serverssl,
@@ -6920,20 +6943,68 @@ static int test_ssl_clear(int idx)
                                                 SSL_ERROR_NONE)))
         goto end;
 
+    if (servertest) {
+        writer = clientssl;
+        reader = serverssl;
+    } else {
+        writer = serverssl;
+        reader = clientssl;
+    }
+
+    /* Write some data */
+    if (!TEST_true(SSL_write_ex(writer, msg, strlen(msg), &written))
+            || written != strlen(msg))
+        goto end;
+
+    /*
+     * Read a partial record. The remaining buffered data should be cleared by
+     * the subsequent clear/reset
+     */
+    if (!TEST_true(SSL_read_ex(reader, buf, sizeof(buf), &readbytes))
+            || readbytes != sizeof(buf))
+        goto end;
+
     SSL_shutdown(clientssl);
     SSL_shutdown(serverssl);
-    SSL_free(serverssl);
-    serverssl = NULL;
 
-    /* Clear clientssl - we're going to reuse the object */
-    if (!TEST_true(SSL_clear(clientssl)))
-        goto end;
+    /* Reset/clear one SSL object in order to reuse it. We free the other one */
+    if (servertest) {
+        if (cleartest) {
+            if (!TEST_true(SSL_clear(serverssl)))
+                goto end;
+        } else {
+            SSL_set_accept_state(serverssl);
+        }
+        /*
+         * A peculiarity of SSL_clear() is that it does not clear the session.
+         * This is intended behaviour so that a client can create a new
+         * connection and reuse the session. But this doesn't make much sense
+         * on the server side - and causes incorrect behaviour due to the
+         * handshake failing (even though the documentation does say SSL_clear()
+         * is supposed to work on the server side). We clear the session
+         * explicitly - although note that the documentation for
+         * SSL_set_session() says that its only useful for clients!
+         */
+        if (!TEST_true(SSL_set_session(serverssl, NULL)))
+            goto end;
+        SSL_free(clientssl);
+        clientssl = NULL;
+    } else {
+        if (cleartest) {
+            if (!TEST_true(SSL_clear(clientssl)))
+                goto end;
+        } else {
+            SSL_set_connect_state(clientssl);
+        }
+        SSL_free(serverssl);
+        serverssl = NULL;
+    }
 
     if (!TEST_true(create_ssl_objects(sctx, cctx, &serverssl, &clientssl,
                                              NULL, NULL))
             || !TEST_true(create_ssl_connection(serverssl, clientssl,
                                                 SSL_ERROR_NONE))
-            || !TEST_true(SSL_session_reused(clientssl)))
+            || !TEST_true(servertest || SSL_session_reused(clientssl)))
         goto end;
 
     SSL_shutdown(clientssl);
@@ -9442,19 +9513,10 @@ static int test_pluggable_group(int idx)
     OSSL_PROVIDER *tlsprov = OSSL_PROVIDER_load(libctx, "tls-provider");
     /* Check that we are not impacted by a provider without any groups */
     OSSL_PROVIDER *legacyprov = OSSL_PROVIDER_load(libctx, "legacy");
-    const char *group_name = idx == 0 ? "xorgroup" : "xorkemgroup";
+    const char *group_name = idx == 0 ? "xorkemgroup" : "xorgroup";
 
     if (!TEST_ptr(tlsprov))
         goto end;
-
-    if (legacyprov == NULL) {
-        /*
-         * In this case we assume we've been built with "no-legacy" and skip
-         * this test (there is no OPENSSL_NO_LEGACY)
-         */
-        testresult = 1;
-        goto end;
-    }
 
     if (!TEST_true(create_ssl_ctx_pair(libctx, TLS_server_method(),
                                        TLS_client_method(),
@@ -9465,7 +9527,9 @@ static int test_pluggable_group(int idx)
                                              NULL, NULL)))
         goto end;
 
-    if (!TEST_true(SSL_set1_groups_list(serverssl, group_name))
+    /* ensure GROUPLIST_INCREMENT (=40) logic triggers: */
+    if (!TEST_true(SSL_set1_groups_list(serverssl, "xorgroup:xorkemgroup:dummy1:dummy2:dummy3:dummy4:dummy5:dummy6:dummy7:dummy8:dummy9:dummy10:dummy11:dummy12:dummy13:dummy14:dummy15:dummy16:dummy17:dummy18:dummy19:dummy20:dummy21:dummy22:dummy23:dummy24:dummy25:dummy26:dummy27:dummy28:dummy29:dummy30:dummy31:dummy32:dummy33:dummy34:dummy35:dummy36:dummy37:dummy38:dummy39:dummy40:dummy41:dummy42:dummy43"))
+    /* removing a single algorithm from the list makes the test pass */
             || !TEST_true(SSL_set1_groups_list(clientssl, group_name)))
         goto end;
 
@@ -11495,7 +11559,7 @@ int setup_tests(void)
     ADD_ALL_TESTS(test_key_update_local_in_write, 2);
     ADD_ALL_TESTS(test_key_update_local_in_read, 2);
 #endif
-    ADD_ALL_TESTS(test_ssl_clear, 2);
+    ADD_ALL_TESTS(test_ssl_clear, 8);
     ADD_ALL_TESTS(test_max_fragment_len_ext, OSSL_NELEM(max_fragment_len_test));
 #if !defined(OPENSSL_NO_SRP) && !defined(OPENSSL_NO_TLS1_2)
     ADD_ALL_TESTS(test_srp, 6);

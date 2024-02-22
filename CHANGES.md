@@ -25,6 +25,19 @@ OpenSSL Releases
 OpenSSL 3.2
 -----------
 
+### Changes between 3.2.1 and 3.2.2 [xx XXX xxxx]
+
+ * New atexit configuration switch, which controls whether the OPENSSL_cleanup
+   is registered when libcrypto is unloaded. This can be used on platforms
+   where using atexit() from shared libraries causes crashes on exit.
+
+   *Randall S. Becker*
+
+ * Fixed bug where SSL_export_keying_material() could not be used with QUIC
+   connections. (#23560)
+
+   *Hugo Landau*
+
 ### Changes between 3.2.0 and 3.2.1 [30 Jan 2024]
 
  * A file in PKCS12 format can contain certificates and keys and may come from
@@ -95,6 +108,13 @@ OpenSSL 3.2
 
    *Rohan McLure*
 
+ * Disable building QUIC server utility when OpenSSL is configured with
+   `no-apps`.
+
+   *Vitalii Koshura*
+
+### Changes between 3.1 and 3.2.0 [23 Nov 2023]
+
  * Fix excessive time spent in DH check / generation with large Q parameter
    value.
 
@@ -108,13 +128,6 @@ OpenSSL 3.2
    ([CVE-2023-5678])
 
    *Richard Levitte*
-
- * Disable building QUIC server utility when OpenSSL is configured with
-   `no-apps`.
-
-   *Vitalii Koshura*
-
-### Changes between 3.1 and 3.2.0 [23 Nov 2023]
 
  * The BLAKE2b hash algorithm supports a configurable output length
    by setting the "size" parameter.
@@ -434,7 +447,7 @@ OpenSSL 3.2
    *Paul Dale*
 
  * Subject or issuer names in X.509 objects are now displayed as UTF-8 strings
-   by default.
+   by default. Also spaces surrounding `=` in DN output are removed.
 
    *Dmitry Belyavskiy*
 
