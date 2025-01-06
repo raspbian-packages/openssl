@@ -1,0 +1,43 @@
+From: Sebastian Andrzej Siewior <sebastian@breakpoint.cc>
+Date: Tue, 8 Oct 2024 22:38:17 +0200
+Subject: SPARC assembly: Don't file aes-cbc on T4 with small sizes.
+
+The "openssl speed -testmode -seconds 1 -bytes 1 aes-128-cbc" test
+revealed that the assembly code is crashing if length is less than 16.
+The code shifts the provided length by 4 and than subtracts one until
+the length hits zero. If it was already zero then it underflows the
+counter and continues until it segfaults on reading or writing.
+
+Replace the check against 0 with less than 15.
+
+Signed-off-by: Sebastian Andrzej Siewior <sebastian@breakpoint.cc>
+---
+ crypto/perlasm/sparcv9_modes.pl | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/crypto/perlasm/sparcv9_modes.pl b/crypto/perlasm/sparcv9_modes.pl
+index 76a2727aba62..295c6312cc37 100644
+--- a/crypto/perlasm/sparcv9_modes.pl
++++ b/crypto/perlasm/sparcv9_modes.pl
+@@ -46,8 +46,8 @@ $::code.=<<___;
+ .align	32
+ ${alg}${bits}_t4_cbc_encrypt:
+ 	save		%sp, -$::frame, %sp
+-	cmp		$len, 0
+-	be,pn		$::size_t_cc, .L${bits}_cbc_enc_abort
++	cmp		$len, 15
++	bleu,pn	$::size_t_cc, .L${bits}_cbc_enc_abort
+ 	srln		$len, 0, $len		! needed on v8+, "nop" on v9
+ 	sub		$inp, $out, $blk_init	! $inp!=$out
+ ___
+@@ -264,8 +264,8 @@ $::code.=<<___;
+ .align	32
+ ${alg}${bits}_t4_cbc_decrypt:
+ 	save		%sp, -$::frame, %sp
+-	cmp		$len, 0
+-	be,pn		$::size_t_cc, .L${bits}_cbc_dec_abort
++	cmp		$len, 15
++	bleu,pn		$::size_t_cc, .L${bits}_cbc_dec_abort
+ 	srln		$len, 0, $len		! needed on v8+, "nop" on v9
+ 	sub		$inp, $out, $blk_init	! $inp!=$out
+ ___
