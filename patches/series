@@ -1,0 +1,9 @@
+debian-targets.patch
+man-section.patch
+no-symbolic.patch
+pic.patch
+c_rehash-compat.patch
+Configure-allow-to-enable-ktls-if-target-does-not-start-w.patch
+conf-Serialize-allocation-free-of-ssl_names.patch
+apps-x509.c-Fix-the-addreject-option-adding-trust-instead.patch
+Fix-P-384-curve-on-lower-than-P9-PPC64-targets.patch
