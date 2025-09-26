@@ -1,0 +1,11 @@
+debian-targets.patch
+man-section.patch
+no-symbolic.patch
+pic.patch
+c_rehash-compat.patch
+Configure-allow-to-enable-ktls-if-target-does-not-start-w.patch
+conf-Serialize-allocation-free-of-ssl_names.patch
+use_proxy-Add-missing-terminating-NUL-byte.patch
+kek_unwrap_key-Fix-incorrect-check-of-unwrapped-key-size.patch
+SM2-Use-constant-time-modular-inversion.patch
+ecp_sm2p256.c-Remove-unused-code.patch
