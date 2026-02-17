@@ -1988,6 +1988,7 @@ OpenSSL 0.9.x
   * Support for various new platforms
 
 <!-- Links -->
+[CVE-2026-2673]: https://www.openssl.org/news/vulnerabilities.html#CVE-2026-2673
 [CVE-2026-22796]: https://www.openssl.org/news/vulnerabilities.html#CVE-2026-22796
 [CVE-2026-22795]: https://www.openssl.org/news/vulnerabilities.html#CVE-2026-22795
 [CVE-2025-69421]: https://www.openssl.org/news/vulnerabilities.html#CVE-2025-69421
