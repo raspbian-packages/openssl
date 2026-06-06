@@ -1,0 +1,32 @@
+From: Alexandr Nedvedicky <sashan@openssl.org>
+Date: Tue, 12 May 2026 16:12:40 +0200
+Subject: Fix NULL dereference in QUIC address validation
+
+QUIC server crashes when address validation (RFC 9000, Section 8.1)
+is disabled and client sends initial packet with invalid token.
+
+Issue reported and fix submitted by Sunwoo Lee (KENTECH),
+Hyuk Lim (KENTECH) and Seunghyun Yoon (KENTECH)
+
+Fixes CVE-2026-42764
+---
+ ssl/quic/quic_port.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/ssl/quic/quic_port.c b/ssl/quic/quic_port.c
+index 1e247e1ec624..dc79485b96a5 100644
+--- a/ssl/quic/quic_port.c
++++ b/ssl/quic/quic_port.c
+@@ -1666,8 +1666,10 @@ static void port_default_packet_handler(QUIC_URXE *e, void *arg,
+          * forget qrx so channel can create a new one
+          * with valid initial encryption level keys.
+          */
+-        qrx_src = qrx;
+-        qrx = NULL;
++        if (qrx != NULL) {
++            qrx_src = qrx;
++            qrx = NULL;
++        }
+     }
+ 
+     port_bind_channel(port, &e->peer, &scid, &hdr.dst_conn_id,
