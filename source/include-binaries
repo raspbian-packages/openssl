@@ -1,0 +1,4 @@
+debian/patches/CVE-2024-0727-2.patch
+debian/binary-CVE-2026-4276.tar
+debian/binary-CVE-2026-9076.tar
+debian/binary-CVE-2026-28389.tar
