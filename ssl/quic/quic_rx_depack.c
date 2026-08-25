@@ -1486,8 +1486,6 @@ int ossl_quic_handle_frames(QUIC_CHANNEL *ch, OSSL_QRX_PKT *qpacket)
      */
     if (enc_level == QUIC_ENC_LEVEL_HANDSHAKE)
         ossl_quic_tx_packetiser_set_validated(ch->txp);
-    else
-        ossl_quic_tx_packetiser_add_unvalidated_credit(ch->txp, dgram_len);
 
     /* Now that special cases are out of the way, parse frames */
     if (!PACKET_buf_init(&pkt, qpacket->hdr->data, qpacket->hdr->len)
