@@ -3039,12 +3039,21 @@ static int test_quic_amplification_limit(void)
      * predictable
      */
     if (!TEST_true(SSL_CTX_set_options(cctx, SSL_OP_NO_RX_CERTIFICATE_COMPRESSION))
-        || !TEST_true(SSL_CTX_set_options(sctx, SSL_OP_NO_TX_CERTIFICATE_COMPRESSION))
-        || !TEST_true(SSL_CTX_set1_groups_list(sctx, "X25519"))
-        || !TEST_true(SSL_CTX_set_ciphersuites(sctx, "TLS_AES_128_GCM_SHA256"))
-        || !TEST_true(SSL_CTX_set1_groups_list(cctx, "X25519"))
-        || !TEST_true(SSL_CTX_set_ciphersuites(cctx, "TLS_AES_128_GCM_SHA256")))
+        || !TEST_true(SSL_CTX_set_options(sctx, SSL_OP_NO_TX_CERTIFICATE_COMPRESSION)))
         goto err;
+
+    if (!TEST_true(SSL_CTX_set1_groups_list(sctx, "X25519"))
+        || !TEST_true(SSL_CTX_set1_groups_list(cctx, "X25519"))) {
+        TEST_skip("Skipping amplification test due to lack of X25519 group");
+        ret = 1;
+        goto err;
+    }
+    if (!TEST_true(SSL_CTX_set_ciphersuites(sctx, "TLS_AES_128_GCM_SHA256"))
+        || !TEST_true(SSL_CTX_set_ciphersuites(cctx, "TLS_AES_128_GCM_SHA256"))) {
+        TEST_skip("Skipping amplification test due to lack of aes-128-gcm-sha256 cipher");
+        ret = 1;
+        goto err;
+    }
 
     /*
      * We're going to send a set of extra certs that don't create a valid
