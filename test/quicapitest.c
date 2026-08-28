@@ -2943,7 +2943,7 @@ static int drain_server_output(BIO *b, uint64_t *total,
     size_t *num_datagrams)
 {
     unsigned char buf[65536];
-    BIO_MSG msg;
+    BIO_MSG msg = { 0 };
     size_t num_processed;
     int ret = 0;
 
