@@ -11,12 +11,10 @@
 #include <string.h>
 
 #include <fcntl.h>
-#include <poll.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/socket.h>
 
 #include <openssl/opensslconf.h>
 #include <openssl/quic.h>
