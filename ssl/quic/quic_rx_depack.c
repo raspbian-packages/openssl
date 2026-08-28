@@ -1451,7 +1451,6 @@ int ossl_quic_handle_frames(QUIC_CHANNEL *ch, OSSL_QRX_PKT *qpacket)
     PACKET pkt;
     OSSL_ACKM_RX_PKT ackm_data;
     uint32_t enc_level;
-    size_t dgram_len = qpacket->datagram_len;
 
     if (ch == NULL)
         return 0;
