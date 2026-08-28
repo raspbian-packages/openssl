@@ -3074,7 +3074,7 @@ static int test_quic_amplification_limit(void)
      * Create a bio dgram pair, and attach them to the client and server ssl objects.
      * We do this so we have access to the bios and can inject and drain frames as needed.
      * Also, its important to make the bio ring buffer sizes large enough so that we don't
-     * acidentally drop frames.
+     * accidentally drop frames.
      */
     ina.s_addr = htonl(INADDR_LOOPBACK);
     if (!TEST_ptr((server_addr = create_addr(&ina, SERVER_PORT)))
@@ -3179,7 +3179,7 @@ static int test_quic_amplification_limit(void)
      *
      * Given that, send another 1200 byte packet from the client, containing
      * a bunch of initial frames.  The server should respond to each of these
-     * with 3600 bytes of handshake data, jsut as it did above, but
+     * with 3600 bytes of handshake data, just as it did above, but
      * (if the server is honoring the 3x amplification limit, will stop after
      * sending the first one.
      */
