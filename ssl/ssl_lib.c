@@ -5502,6 +5502,9 @@ SSL_CTX *SSL_set_SSL_CTX(SSL *ssl, SSL_CTX *ctx)
      * its preferences take effect on an established connection.
      */
     if (sc->s3.tmp.valid_flags != NULL) {
+        /* Should never happen: ssl_cert_new() enforces this */
+        if (!ossl_assert(new_cert->ssl_pkey_num >= SSL_PKEY_NUM))
+            goto err;
         new_valid_flags = OPENSSL_zalloc(new_cert->ssl_pkey_num
             * sizeof(*new_valid_flags));
         if (new_valid_flags == NULL)
