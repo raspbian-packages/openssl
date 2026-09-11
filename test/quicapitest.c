@@ -3010,6 +3010,7 @@ static int test_quic_amplification_limit(void)
     OSSL_QTX_ARGS qtx_args = { 0 };
     QUIC_PKT_HDR hdr = { 0 };
     BIO_ADDR *server_addr = NULL, *client_addr = NULL;
+    BIO_ADDR *shadow_server_addr = NULL;
     int rc, ssl_err, i, ret = 0;
     uint64_t server_bytes = 0;
     size_t server_datagrams = 0;
@@ -3080,16 +3081,26 @@ static int test_quic_amplification_limit(void)
      * accidentally drop frames.
      */
     ina.s_addr = htonl(INADDR_LOOPBACK);
+    if (!TEST_true(BIO_new_bio_dgram_pair(&c_bio, 65535, &s_bio, 65535)))
+        goto err;
     if (!TEST_ptr((server_addr = create_addr(&ina, SERVER_PORT)))
-        || (!TEST_ptr((client_addr = create_addr(&ina, CLIENT_PORT))))
-        || (!TEST_true(BIO_new_bio_dgram_pair(&c_bio, 65535, &s_bio, 65535)))
-        || (!TEST_true(bio_addr_bind(c_bio, client_addr)))
-        || (!TEST_true(bio_addr_bind(s_bio, server_addr)))
-        || (!TEST_ptr((listener = SSL_new_listener(sctx,
-                           SSL_LISTENER_FLAG_NO_VALIDATE))))
+        || (!TEST_ptr((client_addr = create_addr(&ina, CLIENT_PORT)))))
+        goto err;
+
+    if (!TEST_true(bio_addr_bind(c_bio, client_addr)))
+        goto err;
+    client_addr = NULL;
+
+    if (!TEST_true(bio_addr_bind(s_bio, server_addr)))
+        goto err;
+    shadow_server_addr = server_addr;
+    server_addr = NULL;
+
+    if (!TEST_ptr((listener = SSL_new_listener(sctx,
+                       SSL_LISTENER_FLAG_NO_VALIDATE)))
         || (!TEST_true(SSL_listen(listener)))
         || (!TEST_ptr((client = SSL_new(cctx))))
-        || (!TEST_true(SSL_set1_initial_peer_addr(client, server_addr)))
+        || (!TEST_true(SSL_set1_initial_peer_addr(client, shadow_server_addr)))
         || (!TEST_int_eq(SSL_set_alpn_protos(client, alpn, sizeof(alpn)), 0))
         || (!TEST_true(SSL_set_tlsext_host_name(client, "localhost")))
         || (!TEST_ptr((cch = ossl_quic_conn_get_channel(client)))))
@@ -3235,6 +3246,8 @@ err:
     SSL_free(listener);
     SSL_CTX_free(cctx);
     SSL_CTX_free(sctx);
+    BIO_ADDR_free(client_addr);
+    BIO_ADDR_free(server_addr);
     return ret;
 }
 
