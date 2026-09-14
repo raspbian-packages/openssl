@@ -2982,15 +2982,15 @@ static int send_coalesced_initial(OSSL_QTX *qtx, QUIC_PKT_HDR *hdr,
 
     if (ossl_qtx_get_queue_len_datagrams(qtx) != 1
         || ossl_qtx_get_queue_len_bytes(qtx) != QUIC_MDPL) {
-        fprintf(stderr, "crafted queue has %zu datagrams / %zu bytes, "
-                        "expected 1 / %d\n",
+        TEST_info("crafted queue has %zu datagrams / %zu bytes, "
+                  "expected 1 / %d",
             ossl_qtx_get_queue_len_datagrams(qtx),
             ossl_qtx_get_queue_len_bytes(qtx), QUIC_MDPL);
         return 0;
     }
 
     if (ossl_qtx_flush_net(qtx) != QTX_FLUSH_NET_RES_OK) {
-        fprintf(stderr, "failed to flush crafted datagram\n");
+        TEST_info("failed to flush crafted datagram");
         return 0;
     }
 
