@@ -1,0 +1,12 @@
+Version: 5
+
+# Note: at the moment (Sep 2026), uscan downloads a tarball from
+# api.github.com/repos/openssl/openssl/tarball/, and it's not the same as the
+# tarball from github.com/openssl/openssl/releases/ (same content but different
+# hash). Because of that, signature verification fails, and to fix it you must
+# drop the tarball downloaded by uscan, and replace it with the tarball that
+# you download manually. Likely reported at #1118383 and #1120727.
+Template: GitHub
+Dist: https://github.com/openssl/openssl
+Release-Only: yes
+Custom-Version: openssl-(3\.0\.\d+)
