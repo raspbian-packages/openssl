@@ -1,0 +1,42 @@
+From: Alexandr Nedvedicky <sashan@openssl.org>
+Date: Thu, 24 Sep 2026 17:18:12 +0200
+Subject: make ch_cleanup() just safe enough to be called by quic_stream_test
+
+quic_stream_test (quic_txp) use dummy channel to perform testing.
+the channel object is QUIC_CHANNEL instance allocated by OPENSSL_zalloc()
+and released by ossl_quic_channel_free() which calls ch_cleanup()
+
+the ossl_quic_channel_free() assumes the QUIC_CHANNEL is fully
+initialized and valid object which is not a case of dummy channel
+object created for testing.
+
+this change is specific to openssl 3.4 and 3.5. Newer
+OpenSSL versions provide a safe variant of ch_cleanup()
+
+Reviewed-by: Tomas Mraz <tomas@openssl.foundation>
+Reviewed-by: Milan Broz <mbroz@openssl.org>
+Merge-date: Sat Sep 26 11:53:47 2026
+Merged-from: https://github.com/openssl/openssl/pull/32769
+---
+ ssl/quic/quic_channel.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
+
+diff --git a/ssl/quic/quic_channel.c b/ssl/quic/quic_channel.c
+index b5a19d389ccb..aa110b3c4254 100644
+--- a/ssl/quic/quic_channel.c
++++ b/ssl/quic/quic_channel.c
+@@ -404,8 +404,12 @@ static void ch_cleanup(QUIC_CHANNEL *ch)
+             ++pn_space)
+             ossl_ackm_on_pkt_space_discarded(ch->ackm, pn_space);
+ 
+-    ossl_quic_lcidm_cull(ch->lcidm, ch);
+-    ossl_quic_srtm_cull(ch->srtm, ch);
++    if (ch->lcidm != NULL)
++        ossl_quic_lcidm_cull(ch->lcidm, ch);
++
++    if (ch->srtm != NULL)
++        ossl_quic_srtm_cull(ch->srtm, ch);
++
+     ossl_quic_tx_packetiser_free(ch->txp);
+     ossl_quic_txpim_free(ch->txpim);
+     ossl_quic_cfq_free(ch->cfq);

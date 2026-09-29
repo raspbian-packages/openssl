@@ -1,0 +1,25 @@
+From: Neil Horman <nhorman@openssl.org>
+Date: Thu, 10 Sep 2026 11:31:27 -0400
+Subject: fixup! Add a test to check for quic unvalidated credit
+
+---
+ test/quicapitest.c | 4 ----
+ 1 file changed, 4 deletions(-)
+
+diff --git a/test/quicapitest.c b/test/quicapitest.c
+index 85d6f6c4dd7f..b73cdd51ac43 100644
+--- a/test/quicapitest.c
++++ b/test/quicapitest.c
+@@ -9,12 +9,8 @@
+ 
+ #include <stdio.h>
+ #include <string.h>
+-
+ #include <fcntl.h>
+ #include <stdint.h>
+-#include <stdio.h>
+-#include <stdlib.h>
+-#include <string.h>
+ 
+ #include <openssl/opensslconf.h>
+ #include <openssl/quic.h>

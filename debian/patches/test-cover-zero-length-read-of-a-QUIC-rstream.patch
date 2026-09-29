@@ -1,0 +1,106 @@
+From: Jakub Zelenka <jakub.zelenka@openssl.foundation>
+Date: Mon, 7 Sep 2026 15:29:04 +0200
+Subject: test: cover zero length read of a QUIC rstream
+
+A zero length read has been a successful no-op returning zero read
+bytes, and releasing a record without consuming any bytes succeeded
+likewise. The new ossl_sframe_set_move_offset() refuses to keep the
+offset in place, so both operations now fail once at least one byte
+has been consumed, and quic_read_actual() turns the failed read into
+a fatal SSL error for SSL_read_ex() with a zero length buffer.
+
+Assisted-by: Claude:claude-fable-5
+Reviewed-by: Tomas Mraz <tomas@openssl.foundation>
+Reviewed-by: Milan Broz <mbroz@openssl.org>
+Merge-date: Sat Sep 26 11:53:44 2026
+Merged-from: https://github.com/openssl/openssl/pull/32769
+---
+ test/quic_stream_test.c | 75 +++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 75 insertions(+)
+
+diff --git a/test/quic_stream_test.c b/test/quic_stream_test.c
+index 7e01dffc7b65..da322249ef1d 100644
+--- a/test/quic_stream_test.c
++++ b/test/quic_stream_test.c
+@@ -1257,6 +1257,81 @@ static int test_rstream_fin_final_size(void)
+     return ret;
+ }
+ 
++/*
++ * A zero length read is a successful no-op returning zero read bytes,
++ * and releasing a record without consuming any bytes succeeds likewise.
++ * Neither may fail once at least one byte has been consumed, otherwise
++ * quic_read_actual() turns the failed read into a fatal SSL error for
++ * SSL_read_ex() called with a zero length buffer.
++ */
++static int test_rstream_zero_length_read(void)
++{
++    QUIC_RSTREAM *rstream = NULL;
++    QUIC_CHANNEL *ch = NULL;
++    QUIC_RSTREAM_QPARM *rsqp = NULL;
++    OSSL_QRX_PKT *pkt = NULL;
++    unsigned char pdata[10], buf[10];
++    const unsigned char *record = NULL;
++    size_t readbytes = 0, rec_len = 0, i;
++    int fin = 0;
++    int ret = 0;
++
++    for (i = 0; i < sizeof(pdata); ++i)
++        pdata[i] = (unsigned char)(0x40 + i);
++
++    if (!TEST_ptr(pkt = pkt_test_new(1200))
++        || !TEST_ptr(ch = OPENSSL_zalloc(sizeof(QUIC_CHANNEL)))
++        || !TEST_ptr(rsqp = ossl_quic_rstream_qparm_new(ch))
++        || !TEST_ptr(rstream = ossl_quic_rstream_new(NULL, NULL, rsqp)))
++        goto err;
++
++    if (!TEST_true(ossl_quic_rstream_queue_data(rstream, pkt, 0,
++            pdata, sizeof(pdata), 0)))
++        goto err;
++
++    /* a zero length read before anything is consumed */
++    if (!TEST_true(ossl_quic_rstream_read(rstream, buf, 0, &readbytes, &fin))
++        || !TEST_size_t_eq(readbytes, 0))
++        goto err;
++
++    /* consume some bytes so the stream offset is not zero */
++    if (!TEST_true(ossl_quic_rstream_read(rstream, buf, 5, &readbytes, &fin))
++        || !TEST_size_t_eq(readbytes, 5)
++        || !TEST_mem_eq(buf, 5, pdata, 5))
++        goto err;
++
++    /* a zero length read with data pending at a nonzero offset */
++    if (!TEST_true(ossl_quic_rstream_read(rstream, buf, 0, &readbytes, &fin))
++        || !TEST_size_t_eq(readbytes, 0))
++        goto err;
++
++    /* releasing a record without consuming anything succeeds too */
++    if (!TEST_true(ossl_quic_rstream_get_record(rstream, &record, &rec_len,
++            &fin))
++        || !TEST_size_t_eq(rec_len, 5)
++        || !TEST_true(ossl_quic_rstream_release_record(rstream, 0)))
++        goto err;
++
++    /* the remaining bytes are intact and still readable */
++    if (!TEST_true(ossl_quic_rstream_read(rstream, buf, sizeof(buf),
++            &readbytes, &fin))
++        || !TEST_size_t_eq(readbytes, 5)
++        || !TEST_mem_eq(buf, 5, pdata + 5, 5))
++        goto err;
++
++    if (!TEST_int_eq(ch->protocol_error, 0))
++        goto err;
++
++    ret = 1;
++
++err:
++    ossl_quic_rstream_free(rstream);
++    ossl_quic_rstream_qparm_destroy(rsqp);
++    pkt_test_free(pkt);
++    ossl_quic_channel_free(ch);
++    return ret;
++}
++
+ #define FILL_PATTERN "abcdefghijklmnopqrstuvwxyz0123456789" \
+                      "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+ 
