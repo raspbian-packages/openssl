@@ -1,0 +1,21 @@
+From: Neil Horman <nhorman@openssl.org>
+Date: Fri, 28 Aug 2026 09:05:57 -0400
+Subject: fixup! don't double count full databgram length on unvalidated
+ connections
+
+---
+ ssl/quic/quic_rx_depack.c | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/ssl/quic/quic_rx_depack.c b/ssl/quic/quic_rx_depack.c
+index 0ead9097016e..4fbc6eca74e0 100644
+--- a/ssl/quic/quic_rx_depack.c
++++ b/ssl/quic/quic_rx_depack.c
+@@ -1451,7 +1451,6 @@ int ossl_quic_handle_frames(QUIC_CHANNEL *ch, OSSL_QRX_PKT *qpacket)
+     PACKET pkt;
+     OSSL_ACKM_RX_PKT ackm_data;
+     uint32_t enc_level;
+-    size_t dgram_len = qpacket->datagram_len;
+ 
+     if (ch == NULL)
+         return 0;

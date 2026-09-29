@@ -1,0 +1,40 @@
+From: Neil Horman <nhorman@openssl.org>
+Date: Fri, 28 Aug 2026 09:40:29 -0400
+Subject: fixup! Add a test to check for quic unvalidated credit
+
+---
+ test/quicapitest.c | 19 ++++++++++++++-----
+ 1 file changed, 14 insertions(+), 5 deletions(-)
+
+diff --git a/test/quicapitest.c b/test/quicapitest.c
+index 68577e4a5150..d5a04cb04afd 100644
+--- a/test/quicapitest.c
++++ b/test/quicapitest.c
+@@ -3039,13 +3039,22 @@ static int test_quic_amplification_limit(void)
+      * predictable
+      */
+     if (!TEST_true(SSL_CTX_set_options(cctx, SSL_OP_NO_RX_CERTIFICATE_COMPRESSION))
+-        || !TEST_true(SSL_CTX_set_options(sctx, SSL_OP_NO_TX_CERTIFICATE_COMPRESSION))
+-        || !TEST_true(SSL_CTX_set1_groups_list(sctx, "X25519"))
+-        || !TEST_true(SSL_CTX_set_ciphersuites(sctx, "TLS_AES_128_GCM_SHA256"))
+-        || !TEST_true(SSL_CTX_set1_groups_list(cctx, "X25519"))
+-        || !TEST_true(SSL_CTX_set_ciphersuites(cctx, "TLS_AES_128_GCM_SHA256")))
++        || !TEST_true(SSL_CTX_set_options(sctx, SSL_OP_NO_TX_CERTIFICATE_COMPRESSION)))
+         goto err;
+ 
++    if (!TEST_true(SSL_CTX_set1_groups_list(sctx, "X25519"))
++        || !TEST_true(SSL_CTX_set1_groups_list(cctx, "X25519"))) {
++        TEST_skip("Skipping amplification test due to lack of X25519 group");
++        ret = 1;
++        goto err;
++    }
++    if (!TEST_true(SSL_CTX_set_ciphersuites(sctx, "TLS_AES_128_GCM_SHA256"))
++        || !TEST_true(SSL_CTX_set_ciphersuites(cctx, "TLS_AES_128_GCM_SHA256"))) {
++        TEST_skip("Skipping amplification test due to lack of aes-128-gcm-sha256 cipher");
++        ret = 1;
++        goto err;
++    }
++
+     /*
+      * We're going to send a set of extra certs that don't create a valid
+      * verification chain, so don't bother verifying

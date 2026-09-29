@@ -1,0 +1,31 @@
+From: Neil Horman <nhorman@openssl.org>
+Date: Mon, 14 Sep 2026 09:17:08 -0400
+Subject: fixup! Add a test to check for quic unvalidated credit
+
+---
+ test/quicapitest.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/test/quicapitest.c b/test/quicapitest.c
+index 51ad1b1ece0e..4ed21b5ff20e 100644
+--- a/test/quicapitest.c
++++ b/test/quicapitest.c
+@@ -2982,15 +2982,15 @@ static int send_coalesced_initial(OSSL_QTX *qtx, QUIC_PKT_HDR *hdr,
+ 
+     if (ossl_qtx_get_queue_len_datagrams(qtx) != 1
+         || ossl_qtx_get_queue_len_bytes(qtx) != QUIC_MDPL) {
+-        fprintf(stderr, "crafted queue has %zu datagrams / %zu bytes, "
+-                        "expected 1 / %d\n",
++        TEST_info("crafted queue has %zu datagrams / %zu bytes, "
++                  "expected 1 / %d",
+             ossl_qtx_get_queue_len_datagrams(qtx),
+             ossl_qtx_get_queue_len_bytes(qtx), QUIC_MDPL);
+         return 0;
+     }
+ 
+     if (ossl_qtx_flush_net(qtx) != QTX_FLUSH_NET_RES_OK) {
+-        fprintf(stderr, "failed to flush crafted datagram\n");
++        TEST_info("failed to flush crafted datagram");
+         return 0;
+     }
+ 

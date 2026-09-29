@@ -1,0 +1,21 @@
+From: Neil Horman <nhorman@openssl.org>
+Date: Fri, 28 Aug 2026 10:05:56 -0400
+Subject: fixup! Add a test to check for quic unvalidated credit
+
+---
+ test/quicapitest.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/test/quicapitest.c b/test/quicapitest.c
+index d5a04cb04afd..03cd72c6cc4c 100644
+--- a/test/quicapitest.c
++++ b/test/quicapitest.c
+@@ -2943,7 +2943,7 @@ static int drain_server_output(BIO *b, uint64_t *total,
+     size_t *num_datagrams)
+ {
+     unsigned char buf[65536];
+-    BIO_MSG msg;
++    BIO_MSG msg = { 0 };
+     size_t num_processed;
+     int ret = 0;
+ 
